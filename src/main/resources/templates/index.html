@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+	<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+</head>
+<body>
+<h1>IMAGE UPLOAD TEST USING TOAST EDITOR</h1>	
+	<div id="editor"></div>
+	<script>
+		const Editor = toastui.Editor;
+		const editor = new toastui.Editor({
+			el: document.querySelector('#editor'),
+			previewStyle: 'vertical',
+			height: 'auto',
+			initialEditType: 'wysiwyg',
+			placeholder: '내용을 입력해 주세요.',
+			hooks: {
+				addImageBlobHook(blob, callback) {
+					try {
+						// 에디터에 올린 이미지를 form 객체에 저장
+						const form = new form();
+						form.append('image', blob);
+
+						// FileController로 이미지 전달
+						$.ajax({
+							url: '/api/file/imageUpload',
+							type: 'POST',
+							data: {
+								form : form
+							},
+							dataType: 'json',
+							success:function(data) {
+								if (!data.result) {
+									alert(data.msg);
+									return;
+								}
+								console.log('이미지 업로드 success');
+							}
+						})
+
+						// addImageBlobHook의 callback 함수를 통해, 서버에 저장된 이미지를 에디터에 렌더링
+						const imageUrl = `/api/file/imagePrint?filename=${filename}`;
+						callback(imageUrl, 'image alt attribute');
+					} catch (error) {
+						console.error('업로드 실패 : ', error)
+					}
+				}
+			}
+		});
+	</script>
+</body>
+</html>
